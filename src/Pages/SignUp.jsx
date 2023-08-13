@@ -1,47 +1,42 @@
 import {useState} from "react";
+import {useNavigate} from "react-router-dom";
+import AuthInput from "../Components/AuthInput";
+import {postSignUp} from "../Utils/apis";
+import AuthButton from "../Components/AuthButton";
 
 function SignUp() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [validEmail, setValidEmail] = useState(false);
   const [validPassword, setValidPassword] = useState(false);
-  const regex = {
-    email: /@/,
-    password: /^.{8,}$/,
-  };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(email, password);
-  };
-
-  const handleChangeData = (e, type, setState, setValidState) => {
-    setValidState(regex[type].test(e.target.value));
-    setState(e.target.value);
+    try {
+      await postSignUp(email, password);
+      navigate("/signin");
+    } catch (err) {
+      alert(err.response.data.message);
+    }
   };
 
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <input
-          data-testid="email-input"
+        <AuthInput
+          testId="email-input"
           value={email}
-          onChange={(e) =>
-            handleChangeData(e, "email", setEmail, setValidEmail)
-          }
+          setValue={setEmail}
+          setValidState={setValidEmail}
         />
-        <input
-          data-testid="password-input"
+        <AuthInput
+          testId="password-input"
           value={password}
-          onChange={(e) =>
-            handleChangeData(e, "password", setPassword, setValidPassword)
-          }
+          setValue={setPassword}
+          setValidState={setValidPassword}
         />
-        <button
-          style={{width: "50px", height: "20px"}}
-          data-testid="signup-button"
-          disabled={!validEmail || !validPassword}
-        />
+        <AuthButton validEmail={validEmail} validPassword={validPassword} />
       </form>
     </div>
   );
