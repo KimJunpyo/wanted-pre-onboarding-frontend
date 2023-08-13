@@ -1,8 +1,9 @@
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
-import AuthInput from "../Components/AuthInput";
-import {postSignUp} from "../Utils/apis";
+import {postSignUp} from "../Utils/AuthApis";
 import AuthButton from "../Components/AuthButton";
+import Input from "../Components/Input";
+import {regex} from "../Utils/constantValue";
 
 function SignUp() {
   const navigate = useNavigate();
@@ -21,22 +22,35 @@ function SignUp() {
     }
   };
 
+  const handleChangeData = (e, type, setState, setValidState) => {
+    setValidState(regex[type].test(e.target.value));
+    setState(e.target.value);
+  };
+
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <AuthInput
+        <Input
           testId="email-input"
           value={email}
-          setValue={setEmail}
-          setValidState={setValidEmail}
+          handleChangeFunc={(e) =>
+            handleChangeData(e, "email", setEmail, setValidEmail)
+          }
         />
-        <AuthInput
+        <Input
           testId="password-input"
           value={password}
-          setValue={setPassword}
-          setValidState={setValidPassword}
+          handleChangeFunc={(e) =>
+            handleChangeData(e, "password", setPassword, setValidPassword)
+          }
         />
-        <AuthButton validEmail={validEmail} validPassword={validPassword} />
+        <AuthButton
+          validEmail={validEmail}
+          validPassword={validPassword}
+          type="primary"
+        >
+          SignUp
+        </AuthButton>
       </form>
     </div>
   );

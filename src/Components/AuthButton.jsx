@@ -1,10 +1,14 @@
-function AuthButton({validEmail, validPassword}) {
+import ButtonStyle from "./TodoButton";
+
+function AuthButton({children, validEmail, validPassword, type}) {
   return (
-    <button
-      style={{width: "50px", height: "20px"}}
+    <ButtonStyle
       data-testid="signup-button"
       disabled={!validEmail || !validPassword}
-    />
+      type={type}
+    >
+      {children}
+    </ButtonStyle>
   );
 }
 

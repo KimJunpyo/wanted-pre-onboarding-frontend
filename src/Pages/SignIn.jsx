@@ -1,8 +1,9 @@
 import {useState} from "react";
 import {useNavigate} from "react-router-dom";
-import AuthInput from "../Components/AuthInput";
-import {postSignIn} from "../Utils/apis";
+import {postSignIn} from "../Utils/AuthApis";
 import AuthButton from "../Components/AuthButton";
+import {regex} from "../Utils/constantValue";
+import Input from "../Components/Input";
 
 function SignIn() {
   const navigate = useNavigate();
@@ -22,22 +23,35 @@ function SignIn() {
     }
   };
 
+  const handleChangeData = (e, type, setState, setValidState) => {
+    setValidState(regex[type].test(e.target.value));
+    setState(e.target.value);
+  };
+
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <AuthInput
-          testId="email-input"
+        <Input
+          testid="email-input"
           value={email}
-          setValue={setEmail}
-          setValidState={setValidEmail}
+          handleChangeFunc={(e) =>
+            handleChangeData(e, "email", setEmail, setValidEmail)
+          }
         />
-        <AuthInput
-          testId="password-input"
+        <Input
+          testid="password-input"
           value={password}
-          setValue={setPassword}
-          setValidState={setValidPassword}
+          handleChangeFunc={(e) =>
+            handleChangeData(e, "password", setPassword, setValidPassword)
+          }
         />
-        <AuthButton validEmail={validEmail} validPassword={validPassword} />
+        <AuthButton
+          validEmail={validEmail}
+          validPassword={validPassword}
+          type="primary"
+        >
+          SignIn
+        </AuthButton>
       </form>
     </div>
   );
