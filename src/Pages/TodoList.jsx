@@ -4,16 +4,30 @@ import {useEffect, useState} from "react";
 function TodoList() {
   const [todoList, setTodoList] = useState([]);
   const [newTodo, setNewTodo] = useState("");
+  const [modifyTodo, setModifyTodo] = useState("");
+  const [modifyTodoId, setModifyTodoId] = useState(null);
 
-  const handleChangeData = (e) => {
-    setNewTodo(e.target.value);
+  const handleChangeData = (e, setState) => {
+    setState(e.target.value);
   };
 
-  const handleClickCheck = async (id, todo, isCompleted) => {
+  const handleUpdateTodo = async (id, todo, isCompleted, type) => {
+    let data = {};
+    switch (type) {
+      case "checkbox":
+        data = {todo, isCompleted: !isCompleted};
+        break;
+      case "todo":
+        data = {todo, isCompleted};
+        break;
+      default:
+        alert("잘못된 수정 요청입니다.");
+        break;
+    }
     try {
       const response = await axios.put(
         `https://www.pre-onboarding-selection-task.shop/todos/${id}`,
-        {todo, isCompleted: !isCompleted},
+        data,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -28,7 +42,6 @@ function TodoList() {
         response.data,
         ...todoList.slice(updateTodoIdx + 1),
       ]);
-      console.log(response);
     } catch (err) {
       console.log(err);
     }
@@ -62,11 +75,19 @@ function TodoList() {
           },
         }
       );
-      console.log(response);
       setTodoList(response.data);
     } catch (err) {
       console.log(err);
     }
+  };
+
+  const handleModify = (todo, id) => {
+    setModifyTodo(todo);
+    setModifyTodoId(id);
+  };
+
+  const handleCancelModify = () => {
+    setModifyTodoId(null);
   };
 
   useEffect(() => {
@@ -78,7 +99,7 @@ function TodoList() {
       <input
         data-testid="new-todo-input"
         value={newTodo}
-        onChange={handleChangeData}
+        onChange={(e) => handleChangeData(e, setNewTodo)}
       />
       <button data-testid="new-todo-add-button" onClick={handleCreateTodo}>
         추가
@@ -93,11 +114,58 @@ function TodoList() {
                   type="checkbox"
                   checked={todo.isCompleted}
                   onClick={() =>
-                    handleClickCheck(todo.id, todo.todo, todo.isCompleted)
+                    handleUpdateTodo(
+                      todo.id,
+                      todo.todo,
+                      todo.isCompleted,
+                      "checkbox"
+                    )
                   }
                 />
-                <span>{todo.todo}</span>
+                {modifyTodoId === todo.id ? (
+                  <input
+                    data-testid="modify-input"
+                    value={modifyTodo}
+                    onChange={(e) => handleChangeData(e, setModifyTodo)}
+                  />
+                ) : (
+                  <span>{todo.todo}</span>
+                )}
               </label>
+              {modifyTodoId === todo.id ? (
+                <>
+                  <button
+                    data-testid="submit-button"
+                    onClick={() => {
+                      handleCancelModify();
+                      handleUpdateTodo(
+                        todo.id,
+                        modifyTodo,
+                        todo.isCompleted,
+                        "todo"
+                      );
+                    }}
+                  >
+                    제출
+                  </button>
+                  <button
+                    data-testid="cancel-button"
+                    onClick={handleCancelModify}
+                  >
+                    취소
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    data-testid="modify-button"
+                    onClick={() => handleModify(todo.todo, todo.id)}
+                  >
+                    수정
+                  </button>
+                  <button data-testid="delete-button">삭제</button>
+                </>
+              )}
             </li>
           );
         })}
