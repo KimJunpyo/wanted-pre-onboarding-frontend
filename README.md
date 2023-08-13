@@ -14,4 +14,4 @@ npm start
 
 ## 배포 링크
 
-link:
+link: https://fantastic-faun-0b66f0.netlify.app/
